@@ -46,7 +46,7 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 sm:px-6 py-8">
+      <main className="container mx-auto px-4 sm:px-6 py-8 pt-24">
         {viewState === 'upload' && (
           <div className="max-w-3xl mx-auto space-y-6 animate-slide-up">
             {/* Hero */}
