@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Upload, FileText, X, CheckCircle2 } from 'lucide-react';
+import { Upload, FileText, X, Check } from 'lucide-react';
 import { UploadedFile } from '@/types/analysis';
 import { cn } from '@/lib/utils';
 
@@ -63,46 +63,48 @@ export function FileUpload({
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   };
 
+  const getWordCount = (content?: string) => {
+    if (!content) return 0;
+    return content.split(/\s+/).filter(Boolean).length;
+  };
+
   if (selectedFile) {
     return (
-      <div className="glass-panel p-4 animate-fade-in">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-primary" />
+      <div className="card-elevated p-4 animate-fade-in">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
+              <Check className="w-5 h-5 text-success" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-foreground">{selectedFile.name}</span>
-                <CheckCircle2 className="w-4 h-4 text-success" />
-              </div>
-              <p className="text-xs text-muted-foreground font-mono">
-                {formatFileSize(selectedFile.size)} • {selectedFile.content?.split(/\s+/).length.toLocaleString()} words
+            <div className="min-w-0">
+              <p className="font-medium text-foreground truncate">{selectedFile.name}</p>
+              <p className="text-sm text-muted-foreground">
+                {formatFileSize(selectedFile.size)} • {getWordCount(selectedFile.content).toLocaleString()} words
               </p>
             </div>
           </div>
           <button
             onClick={() => onFileSelect(null)}
-            className="p-1.5 rounded-md hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
+            className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="mt-3 p-3 rounded-md bg-terminal-bg border border-border">
-          <p className="text-xs font-mono text-terminal-text line-clamp-3">
-            {selectedFile.content?.slice(0, 300)}...
-          </p>
-        </div>
+        
+        {selectedFile.content && (
+          <div className="mt-3 p-3 rounded-lg bg-muted/50 border border-border">
+            <p className="text-xs font-mono text-muted-foreground line-clamp-2">
+              {selectedFile.content.slice(0, 200)}...
+            </p>
+          </div>
+        )}
       </div>
     );
   }
 
   return (
     <div
-      className={cn(
-        'upload-zone animate-fade-in',
-        isDragging && 'active'
-      )}
+      className={cn('upload-zone animate-fade-in', isDragging && 'active')}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -114,17 +116,17 @@ export function FileUpload({
         className="hidden"
         id={`file-upload-${label}`}
       />
-      <label htmlFor={`file-upload-${label}`} className="cursor-pointer">
+      <label htmlFor={`file-upload-${label}`} className="cursor-pointer block">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center">
-            <Upload className="w-6 h-6 text-muted-foreground" />
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+            <Upload className="w-5 h-5 text-muted-foreground" />
           </div>
           <div>
             <p className="font-medium text-foreground">{label}</p>
-            <p className="text-sm text-muted-foreground mt-1">{description}</p>
+            <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
           </div>
-          <p className="text-xs text-muted-foreground font-mono">
-            Drop file here or click to browse
+          <p className="text-xs text-muted-foreground">
+            Drag & drop or click to browse
           </p>
         </div>
       </label>

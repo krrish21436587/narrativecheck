@@ -6,13 +6,14 @@ import {
   ChevronRight,
   Quote,
   Clock,
-  Target,
   AlertTriangle,
-  CheckSquare
+  Download,
+  Copy
 } from 'lucide-react';
-import { AnalysisResult, Claim, Evidence, ConstraintAnalysis } from '@/types/analysis';
+import { AnalysisResult, Claim, Evidence, ConstraintAnalysis, ExportRow } from '@/types/analysis';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
+import { toast } from 'sonner';
 
 interface ResultsViewProps {
   result: AnalysisResult;
@@ -20,17 +21,22 @@ interface ResultsViewProps {
 
 function EvidenceCard({ evidence }: { evidence: Evidence }) {
   return (
-    <div className="p-3 bg-terminal-bg rounded-lg border border-border">
-      <div className="flex items-start gap-2">
+    <div className="p-3 bg-muted/50 rounded-lg border border-border">
+      <div className="flex items-start gap-3">
         <Quote className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-        <div className="flex-1">
-          <p className="text-sm font-mono text-terminal-text">"{evidence.quote}"</p>
-          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm italic text-foreground">"{evidence.quote}"</p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-muted-foreground">
             <span>{evidence.chapterRef}</span>
-            <span className="evidence-link">
-              Relevance: {(evidence.relevanceScore * 100).toFixed(0)}%
+            <span className="badge badge-track">
+              {(evidence.relevanceScore * 100).toFixed(0)}% relevance
             </span>
           </div>
+          {evidence.analysisNote && (
+            <p className="mt-2 text-xs text-muted-foreground bg-muted p-2 rounded">
+              <strong>Analysis:</strong> {evidence.analysisNote}
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -41,33 +47,33 @@ function ClaimCard({ claim }: { claim: Claim }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="glass-panel overflow-hidden">
+    <div className="card-elevated overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full p-4 flex items-start gap-4 text-left hover:bg-secondary/30 transition-colors"
+        className="w-full p-4 flex items-start gap-3 text-left hover:bg-muted/50 transition-colors"
       >
         <div className="shrink-0 mt-0.5">
           {expanded ? (
-            <ChevronDown className="w-5 h-5 text-muted-foreground" />
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
           ) : (
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-foreground">{claim.text}</p>
-          <div className="flex items-center gap-3 mt-2">
+          <p className="text-foreground">{claim.text}</p>
+          <div className="flex flex-wrap items-center gap-2 mt-2">
             <span className={cn(
-              'claim-badge',
-              claim.status === 'supported' && 'claim-supported',
-              claim.status === 'contradicted' && 'claim-contradicted',
-              claim.status === 'unverified' && 'claim-unverified'
+              'badge',
+              claim.status === 'supported' && 'badge-supported',
+              claim.status === 'contradicted' && 'badge-contradicted',
+              claim.status === 'unverified' && 'badge-unverified'
             )}>
               {claim.status}
             </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              {claim.evidence.length} evidence{claim.evidence.length !== 1 ? 's' : ''}
+            <span className="text-xs text-muted-foreground">
+              {claim.evidence.length} excerpt{claim.evidence.length !== 1 ? 's' : ''}
             </span>
-            <span className="text-xs text-muted-foreground font-mono">
+            <span className="text-xs text-muted-foreground">
               {(claim.confidence * 100).toFixed(0)}% confidence
             </span>
           </div>
@@ -75,9 +81,9 @@ function ClaimCard({ claim }: { claim: Claim }) {
       </button>
       
       {expanded && claim.evidence.length > 0 && (
-        <div className="px-4 pb-4 pt-2 pl-14 space-y-2 animate-fade-in">
-          <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Supporting Evidence
+        <div className="px-4 pb-4 pl-11 space-y-3 animate-fade-in">
+          <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Linked Excerpts from Primary Text
           </h4>
           {claim.evidence.map((ev) => (
             <EvidenceCard key={ev.id} evidence={ev} />
@@ -91,36 +97,36 @@ function ClaimCard({ claim }: { claim: Claim }) {
 function ConstraintCard({ constraint }: { constraint: ConstraintAnalysis }) {
   const icons = {
     temporal: Clock,
-    spatial: Target,
     causal: ChevronRight,
-    character: CheckSquare,
+    character: CheckCircle2,
     factual: CheckCircle2,
+    spatial: AlertTriangle,
   };
   const Icon = icons[constraint.constraintType] || AlertTriangle;
 
   return (
     <div className={cn(
-      'p-4 rounded-lg border',
-      constraint.status === 'satisfied' && 'bg-success/5 border-success/20',
-      constraint.status === 'violated' && 'bg-destructive/5 border-destructive/20',
-      constraint.status === 'uncertain' && 'bg-warning/5 border-warning/20'
+      'constraint-card',
+      constraint.status === 'satisfied' && 'constraint-satisfied',
+      constraint.status === 'violated' && 'constraint-violated',
+      constraint.status === 'uncertain' && 'constraint-uncertain'
     )}>
       <div className="flex items-start gap-3">
         <div className={cn(
-          'w-8 h-8 rounded-lg flex items-center justify-center',
+          'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
           constraint.status === 'satisfied' && 'bg-success/20 text-success',
           constraint.status === 'violated' && 'bg-destructive/20 text-destructive',
           constraint.status === 'uncertain' && 'bg-warning/20 text-warning'
         )}>
           <Icon className="w-4 h-4" />
         </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono uppercase text-muted-foreground">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-medium uppercase text-muted-foreground">
               {constraint.constraintType}
             </span>
             <span className={cn(
-              'text-xs font-medium',
+              'text-xs font-medium capitalize',
               constraint.status === 'satisfied' && 'text-success',
               constraint.status === 'violated' && 'text-destructive',
               constraint.status === 'uncertain' && 'text-warning'
@@ -138,63 +144,108 @@ function ConstraintCard({ constraint }: { constraint: ConstraintAnalysis }) {
 export function ResultsView({ result }: ResultsViewProps) {
   const isConsistent = result.consistencyLabel === 1;
 
+  const exportCSV = () => {
+    const row: ExportRow = {
+      storyId: result.storyId,
+      prediction: result.consistencyLabel,
+      rationale: result.rationale,
+    };
+    
+    const csvContent = [
+      'Story ID,Prediction,Rationale',
+      `${row.storyId},${row.prediction},"${row.rationale.replace(/"/g, '""')}"`
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'results.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Exported to results.csv');
+  };
+
+  const copyResults = () => {
+    const text = `Story ID: ${result.storyId}\nPrediction: ${result.consistencyLabel}\nRationale: ${result.rationale}`;
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard');
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Main Result Card */}
+      {/* Main Result */}
       <div className={cn(
-        'glass-panel p-8 text-center',
+        'card-elevated p-6 sm:p-8',
         isConsistent ? 'border-success/30' : 'border-destructive/30'
       )}>
-        <div className={cn(
-          'w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4',
-          isConsistent ? 'bg-success/20' : 'bg-destructive/20'
-        )}>
-          {isConsistent ? (
-            <CheckCircle2 className="w-10 h-10 text-success" />
-          ) : (
-            <XCircle className="w-10 h-10 text-destructive" />
-          )}
-        </div>
-        
-        <h2 className="text-2xl font-bold text-foreground mb-2">
-          {isConsistent ? 'Consistent' : 'Inconsistent'}
-        </h2>
-        
-        <p className="text-lg font-mono mb-4">
-          <span className="text-muted-foreground">Label: </span>
-          <span className={cn(
-            'font-bold',
-            isConsistent ? 'text-success' : 'text-destructive'
+        <div className="flex flex-col sm:flex-row items-center gap-6">
+          <div className={cn(
+            'w-16 h-16 rounded-full flex items-center justify-center shrink-0',
+            isConsistent ? 'bg-success/10' : 'bg-destructive/10'
           )}>
-            {result.consistencyLabel}
-          </span>
-        </p>
-
-        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mb-6">
-          <div className="flex items-center gap-2">
-            <Target className="w-4 h-4" />
-            <span>Confidence: {(result.overallConfidence * 100).toFixed(1)}%</span>
+            {isConsistent ? (
+              <CheckCircle2 className="w-8 h-8 text-success" />
+            ) : (
+              <XCircle className="w-8 h-8 text-destructive" />
+            )}
           </div>
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4" />
-            <span>Processed in {(result.processingTime / 1000).toFixed(1)}s</span>
+          
+          <div className="flex-1 text-center sm:text-left">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mb-2">
+              <h2 className="text-2xl font-bold text-foreground">
+                {isConsistent ? 'Consistent' : 'Inconsistent'}
+              </h2>
+              <span className={cn(
+                'badge text-sm',
+                isConsistent ? 'badge-consistent' : 'badge-inconsistent'
+              )}>
+                Label: {result.consistencyLabel}
+              </span>
+            </div>
+            
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-muted-foreground mb-4">
+              <span>Story ID: <strong className="text-foreground">{result.storyId}</strong></span>
+              <span>Confidence: {(result.overallConfidence * 100).toFixed(1)}%</span>
+              <span>Time: {(result.processingTime / 1000).toFixed(1)}s</span>
+              <span className="badge badge-track">Track {result.track}</span>
+            </div>
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto text-left bg-secondary/30 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Explanation</h3>
-          <p className="text-foreground">{result.explanation}</p>
+        <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">Rationale</h3>
+          <p className="text-foreground">{result.rationale}</p>
+        </div>
+
+        <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">Detailed Explanation</h3>
+          <p className="text-sm text-muted-foreground">{result.explanation}</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mt-6">
+          <Button onClick={exportCSV} variant="outline" size="sm">
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
+          <Button onClick={copyResults} variant="ghost" size="sm">
+            <Copy className="w-4 h-4 mr-2" />
+            Copy
+          </Button>
         </div>
       </div>
 
-      {/* Claims Analysis */}
-      <div className="glass-panel p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">
-          Backstory Claims Analysis
+      {/* Evidence Dossier */}
+      <div className="card-elevated p-6">
+        <h3 className="section-header">
+          Evidence Dossier
           <span className="text-muted-foreground text-sm font-normal ml-2">
-            ({result.claims.length} claims identified)
+            ({result.claims.length} claims analyzed)
           </span>
         </h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Each backstory claim is linked to verbatim excerpts from the primary text, with analysis of constraint or refutation.
+        </p>
         <div className="space-y-3">
           {result.claims.map((claim) => (
             <ClaimCard key={claim.id} claim={claim} />
@@ -203,25 +254,16 @@ export function ResultsView({ result }: ResultsViewProps) {
       </div>
 
       {/* Constraint Analysis */}
-      <div className="glass-panel p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">
-          Constraint Analysis
-        </h3>
-        <div className="grid gap-3 md:grid-cols-2">
+      <div className="card-elevated p-6">
+        <h3 className="section-header">Constraint Analysis</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Evaluation of temporal, causal, character, and factual constraints.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
           {result.constraintAnalysis.map((constraint) => (
             <ConstraintCard key={constraint.id} constraint={constraint} />
           ))}
         </div>
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center justify-center gap-4">
-        <Button variant="outline" onClick={() => window.location.reload()}>
-          New Analysis
-        </Button>
-        <Button variant="terminal">
-          Export Results
-        </Button>
       </div>
     </div>
   );
