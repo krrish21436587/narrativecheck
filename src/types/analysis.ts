@@ -1,3 +1,5 @@
+export type Track = 'A' | 'B';
+
 export interface Claim {
   id: string;
   text: string;
@@ -11,17 +13,21 @@ export interface Evidence {
   quote: string;
   chapterRef: string;
   relevanceScore: number;
+  analysisNote?: string;
 }
 
 export interface AnalysisResult {
   id: string;
+  storyId: string;
   consistencyLabel: 0 | 1;
   overallConfidence: number;
+  rationale: string;
   explanation: string;
   claims: Claim[];
   constraintAnalysis: ConstraintAnalysis[];
   processingTime: number;
   timestamp: Date;
+  track: Track;
 }
 
 export interface ConstraintAnalysis {
@@ -30,6 +36,7 @@ export interface ConstraintAnalysis {
   description: string;
   status: 'satisfied' | 'violated' | 'uncertain';
   relatedClaims: string[];
+  excerptLinks?: string[];
 }
 
 export interface Metrics {
@@ -59,10 +66,12 @@ export interface AnalysisJob {
   progress: number;
   storyFileName: string;
   backstoryFileName: string;
+  storyId: string;
   logs: ProcessingLog[];
   result?: AnalysisResult;
   startTime: Date;
   endTime?: Date;
+  track: Track;
 }
 
 export interface UploadedFile {
@@ -70,4 +79,10 @@ export interface UploadedFile {
   name: string;
   size: number;
   content?: string;
+}
+
+export interface ExportRow {
+  storyId: string;
+  prediction: 0 | 1;
+  rationale: string;
 }
