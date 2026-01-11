@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 
 interface ProcessingViewProps {
   job: AnalysisJob;
+  onRetry?: () => void;
 }
 
 const PHASES = [
@@ -27,15 +28,18 @@ function LogIcon({ level }: { level: ProcessingLog['level'] }) {
   }
 }
 
-export function ProcessingView({ job }: ProcessingViewProps) {
+export function ProcessingView({ job, onRetry }: ProcessingViewProps) {
   const logsEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [job.logs]);
 
-  const currentPhaseIndex = PHASES.findIndex(p => p.key === job.status);
-  const elapsedTime = Math.round((new Date().getTime() - job.startTime.getTime()) / 1000);
+  const isFailed = job.status === 'failed';
+  const currentPhaseIndex = isFailed ? -1 : PHASES.findIndex(p => p.key === job.status);
+  const elapsedTime = job.endTime 
+    ? Math.round((job.endTime.getTime() - job.startTime.getTime()) / 1000)
+    : Math.round((new Date().getTime() - job.startTime.getTime()) / 1000);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -43,11 +47,20 @@ export function ProcessingView({ job }: ProcessingViewProps) {
       <div className="card-elevated p-6">
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Loader2 className="w-5 h-5 text-primary animate-spin" />
+            <div className={cn(
+              'w-10 h-10 rounded-full flex items-center justify-center',
+              isFailed ? 'bg-destructive/10' : 'bg-primary/10'
+            )}>
+              {isFailed ? (
+                <AlertCircle className="w-5 h-5 text-destructive" />
+              ) : (
+                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+              )}
             </div>
             <div>
-              <h2 className="font-semibold text-foreground">Processing Analysis</h2>
+              <h2 className="font-semibold text-foreground">
+                {isFailed ? 'Analysis Failed' : 'Processing Analysis'}
+              </h2>
               <p className="text-sm text-muted-foreground">
                 Story: {job.storyFileName}
               </p>
@@ -58,6 +71,25 @@ export function ProcessingView({ job }: ProcessingViewProps) {
             <span className="font-mono">{elapsedTime}s</span>
           </div>
         </div>
+
+        {/* Error message */}
+        {isFailed && job.error && (
+          <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+            {job.error}
+          </div>
+        )}
+
+        {/* Retry button */}
+        {isFailed && onRetry && (
+          <div className="mb-4">
+            <button
+              onClick={onRetry}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
 
         {/* Progress Bar */}
         <div className="space-y-2">

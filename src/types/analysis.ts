@@ -72,6 +72,7 @@ export interface AnalysisJob {
   startTime: Date;
   endTime?: Date;
   track: Track;
+  error?: string;
 }
 
 export interface UploadedFile {
