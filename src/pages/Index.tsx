@@ -64,35 +64,35 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 sm:px-6 py-8 pt-24">
+      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 pt-20 sm:pt-24">
         {viewState === 'upload' && (
-          <div className="max-w-3xl mx-auto space-y-6 animate-slide-up">
+          <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 animate-slide-up">
             {/* Hero */}
-            <div className="text-center py-6">
-              <span className="badge badge-track mb-3">KDSH 2026</span>
-              <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
+            <div className="text-center py-4 sm:py-6">
+              <span className="badge badge-track mb-2 sm:mb-3">KDSH 2026</span>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3 px-2">
                 Narrative Consistency Checker
               </h1>
-              <p className="text-muted-foreground max-w-xl mx-auto">
+              <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto px-4">
                 Determine whether a hypothetical backstory is consistent with a long-form narrative 
                 using constraint tracking and causal reasoning.
               </p>
             </div>
 
             {/* Feature highlights */}
-            <div className="grid sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               {[
                 { icon: BookOpen, title: 'Long Context', desc: 'Handles 100k+ word novels' },
                 { icon: Brain, title: 'Causal Reasoning', desc: 'Tracks constraints over time' },
                 { icon: FileSearch, title: 'Evidence Linking', desc: 'Verbatim quote extraction' },
               ].map((item) => (
-                <div key={item.title} className="card-elevated p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <item.icon className="w-5 h-5 text-primary" />
+                <div key={item.title} className="card-elevated p-3 sm:p-4 flex items-center gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <item.icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   </div>
-                  <div>
-                    <p className="font-medium text-foreground">{item.title}</p>
-                    <p className="text-xs text-muted-foreground">{item.desc}</p>
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground text-sm sm:text-base">{item.title}</p>
+                    <p className="text-xs text-muted-foreground truncate">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -105,18 +105,18 @@ export default function Index() {
             />
 
             {/* File Upload Section */}
-            <div className="card-elevated p-6 space-y-5">
+            <div className="card-elevated p-4 sm:p-6 space-y-4 sm:space-y-5">
               <div className="flex items-center gap-3">
-                <span className="step-indicator step-active">1</span>
+                <span className="step-indicator step-active text-xs sm:text-sm">1</span>
                 <div>
-                  <h2 className="font-semibold text-foreground">Upload Files</h2>
-                  <p className="text-sm text-muted-foreground">
+                  <h2 className="font-semibold text-foreground text-sm sm:text-base">Upload Files</h2>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Provide the story text and hypothetical backstory
                   </p>
                 </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FileUpload
                   label="Story Narrative"
                   description="Complete novel text (.txt)"
@@ -133,14 +133,14 @@ export default function Index() {
 
               {/* Story ID input */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
+                <label className="text-xs sm:text-sm font-medium text-foreground">
                   Story ID <span className="text-muted-foreground font-normal">(optional)</span>
                 </label>
                 <Input
                   value={storyId}
                   onChange={(e) => setStoryId(e.target.value)}
                   placeholder="e.g., 1, 2, story_001..."
-                  className="max-w-xs"
+                  className="max-w-full sm:max-w-xs"
                 />
                 <p className="text-xs text-muted-foreground">
                   Used in the results.csv export. Auto-generated if not provided.
@@ -151,7 +151,7 @@ export default function Index() {
             {/* Submit Button */}
             {canSubmit && (
               <div className="flex justify-center animate-fade-in">
-                <Button onClick={handleSubmit} size="lg" className="gap-2">
+                <Button onClick={handleSubmit} size="lg" className="gap-2 w-full sm:w-auto">
                   Run Analysis
                   <ArrowRight className="w-4 h-4" />
                 </Button>
@@ -159,11 +159,11 @@ export default function Index() {
             )}
 
             {/* Info Note */}
-            <div className="card-elevated p-4 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
-              <div className="text-sm text-muted-foreground">
+            <div className="card-elevated p-3 sm:p-4 flex items-start gap-3">
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground shrink-0 mt-0.5" />
+              <div className="text-xs sm:text-sm text-muted-foreground">
                 <p className="font-medium text-foreground mb-1">How it works</p>
-                <p>
+                <p className="leading-relaxed">
                   The system extracts claims from the backstory, finds supporting or contradicting 
                   evidence in the narrative, and evaluates temporal, causal, and character constraints 
                   to produce a binary consistency judgment.
@@ -178,7 +178,7 @@ export default function Index() {
             <ProcessingView job={job} onRetry={job.status === 'failed' ? handleReset : undefined} />
             {job.status === 'failed' && (
               <div className="flex justify-center">
-                <Button variant="ghost" onClick={handleReset}>
+                <Button variant="ghost" onClick={handleReset} className="w-full sm:w-auto">
                   ← Back to Upload
                 </Button>
               </div>
@@ -187,14 +187,15 @@ export default function Index() {
         )}
 
         {viewState === 'results' && job?.result && (
-          <div className="max-w-3xl mx-auto space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <Button variant="ghost" onClick={handleReset}>
+          <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+              <Button variant="ghost" onClick={handleReset} className="order-2 sm:order-1">
                 ← New Analysis
               </Button>
               <Button
                 variant={showMetrics ? 'default' : 'outline'}
                 onClick={() => setShowMetrics(!showMetrics)}
+                className="order-1 sm:order-2"
               >
                 {showMetrics ? 'Show Results' : 'Show Metrics'}
               </Button>
@@ -210,8 +211,8 @@ export default function Index() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border mt-12 py-6">
-        <div className="container mx-auto px-4 sm:px-6 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-border mt-8 sm:mt-12 py-4 sm:py-6">
+        <div className="container mx-auto px-4 sm:px-6 text-center text-xs sm:text-sm text-muted-foreground">
           <p>
             Kharagpur Data Science Hackathon 2026 • 
             <a 
