@@ -9,6 +9,7 @@ import { TrackSelector } from '@/components/TrackSelector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAnalysis } from '@/hooks/useAnalysis';
+import { useToast } from '@/hooks/use-toast';
 import { UploadedFile, Track } from '@/types/analysis';
 
 type ViewState = 'upload' | 'processing' | 'results';
@@ -20,17 +21,33 @@ export default function Index() {
   const [storyId, setStoryId] = useState('');
   const [selectedTrack, setSelectedTrack] = useState<Track>('A');
   const [showMetrics, setShowMetrics] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   
   const { job, metrics, runAnalysis, reset } = useAnalysis();
+  const { toast } = useToast();
 
-  const canSubmit = storyFile && backstoryFile;
+  const canSubmit = storyFile && backstoryFile && !isAnalyzing;
 
   const handleSubmit = async () => {
     if (!storyFile || !backstoryFile) return;
     
     setViewState('processing');
-    await runAnalysis(storyFile, backstoryFile, selectedTrack, storyId || undefined);
-    setViewState('results');
+    setIsAnalyzing(true);
+    
+    try {
+      await runAnalysis(storyFile, backstoryFile, selectedTrack, storyId || undefined);
+      setViewState('results');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Analysis failed';
+      toast({
+        title: 'Analysis Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+      // Stay on processing view to show error in logs
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleReset = () => {
@@ -39,6 +56,7 @@ export default function Index() {
     setStoryId('');
     setShowMetrics(false);
     setViewState('upload');
+    setIsAnalyzing(false);
     reset();
   };
 
@@ -156,8 +174,15 @@ export default function Index() {
         )}
 
         {viewState === 'processing' && job && (
-          <div className="max-w-3xl mx-auto">
-            <ProcessingView job={job} />
+          <div className="max-w-3xl mx-auto space-y-4">
+            <ProcessingView job={job} onRetry={job.status === 'failed' ? handleReset : undefined} />
+            {job.status === 'failed' && (
+              <div className="flex justify-center">
+                <Button variant="ghost" onClick={handleReset}>
+                  ← Back to Upload
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
