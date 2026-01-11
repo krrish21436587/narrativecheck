@@ -42,39 +42,39 @@ export function ProcessingView({ job, onRetry }: ProcessingViewProps) {
     : Math.round((new Date().getTime() - job.startTime.getTime()) / 1000);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="card-elevated p-6">
-        <div className="flex items-start justify-between mb-6">
-          <div className="flex items-center gap-3">
+      <div className="card-elevated p-4 sm:p-6">
+        <div className="flex items-start justify-between gap-3 mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className={cn(
-              'w-10 h-10 rounded-full flex items-center justify-center',
+              'w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0',
               isFailed ? 'bg-destructive/10' : 'bg-primary/10'
             )}>
               {isFailed ? (
-                <AlertCircle className="w-5 h-5 text-destructive" />
+                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-destructive" />
               ) : (
-                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary animate-spin" />
               )}
             </div>
-            <div>
-              <h2 className="font-semibold text-foreground">
+            <div className="min-w-0">
+              <h2 className="font-semibold text-foreground text-sm sm:text-base">
                 {isFailed ? 'Analysis Failed' : 'Processing Analysis'}
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">
                 Story: {job.storyFileName}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
-            <Clock className="w-4 h-4" />
+          <div className="flex items-center gap-1 sm:gap-2 text-muted-foreground text-xs sm:text-sm shrink-0">
+            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
             <span className="font-mono">{elapsedTime}s</span>
           </div>
         </div>
 
         {/* Error message */}
         {isFailed && job.error && (
-          <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+          <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs sm:text-sm">
             {job.error}
           </div>
         )}
@@ -84,7 +84,7 @@ export function ProcessingView({ job, onRetry }: ProcessingViewProps) {
           <div className="mb-4">
             <button
               onClick={onRetry}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              className="w-full sm:w-auto px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm"
             >
               Try Again
             </button>
@@ -93,7 +93,7 @@ export function ProcessingView({ job, onRetry }: ProcessingViewProps) {
 
         {/* Progress Bar */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between text-xs sm:text-sm">
             <span className="text-muted-foreground">Overall Progress</span>
             <span className="font-medium text-foreground">{job.progress}%</span>
           </div>
@@ -104,9 +104,9 @@ export function ProcessingView({ job, onRetry }: ProcessingViewProps) {
       </div>
 
       {/* Phase Steps */}
-      <div className="card-elevated p-6">
-        <h3 className="text-sm font-medium text-muted-foreground mb-4">Processing Steps</h3>
-        <div className="space-y-3">
+      <div className="card-elevated p-4 sm:p-6">
+        <h3 className="text-xs sm:text-sm font-medium text-muted-foreground mb-3 sm:mb-4">Processing Steps</h3>
+        <div className="space-y-2 sm:space-y-3">
           {PHASES.map((phase, index) => {
             const isActive = phase.key === job.status;
             const isComplete = index < currentPhaseIndex || job.status === 'complete';
@@ -116,33 +116,33 @@ export function ProcessingView({ job, onRetry }: ProcessingViewProps) {
               <div
                 key={phase.key}
                 className={cn(
-                  'flex items-center gap-4 p-3 rounded-lg transition-colors',
+                  'flex items-center gap-3 sm:gap-4 p-2 sm:p-3 rounded-lg transition-colors',
                   isActive && 'bg-primary/5'
                 )}
               >
                 <div className={cn(
-                  'step-indicator',
+                  'step-indicator w-7 h-7 sm:w-8 sm:h-8 text-xs sm:text-sm',
                   isComplete && 'step-complete',
                   isActive && 'step-active',
                   isPending && 'step-pending'
                 )}>
                   {isComplete ? (
-                    <Check className="w-4 h-4" />
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4" />
                   ) : isActive ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
                   ) : (
                     index + 1
                   )}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <p className={cn(
-                    'font-medium',
+                    'font-medium text-sm sm:text-base',
                     isActive && 'text-primary',
                     isPending && 'text-muted-foreground'
                   )}>
                     {phase.label}
                   </p>
-                  <p className="text-xs text-muted-foreground">{phase.description}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{phase.description}</p>
                 </div>
               </div>
             );
@@ -151,21 +151,21 @@ export function ProcessingView({ job, onRetry }: ProcessingViewProps) {
       </div>
 
       {/* Logs */}
-      <div className="card-elevated p-6">
-        <h3 className="text-sm font-medium text-muted-foreground mb-4">Processing Log</h3>
-        <div className="bg-muted/50 rounded-lg border border-border p-4 max-h-48 overflow-y-auto">
+      <div className="card-elevated p-4 sm:p-6">
+        <h3 className="text-xs sm:text-sm font-medium text-muted-foreground mb-3 sm:mb-4">Processing Log</h3>
+        <div className="bg-muted/50 rounded-lg border border-border p-2 sm:p-4 max-h-40 sm:max-h-48 overflow-y-auto overflow-x-hidden">
           <div className="space-y-1">
             {job.logs.map((log) => (
               <div
                 key={log.id}
-                className={cn('log-entry flex items-start gap-2', `log-${log.level}`)}
+                className={cn('log-entry flex items-start gap-1 sm:gap-2 text-[10px] sm:text-xs', `log-${log.level}`)}
               >
                 <LogIcon level={log.level} />
-                <span className="text-muted-foreground/60 shrink-0">
+                <span className="text-muted-foreground/60 shrink-0 hidden sm:inline">
                   {new Date(log.timestamp).toLocaleTimeString()}
                 </span>
                 <span className="text-primary/70 shrink-0">[{log.phase}]</span>
-                <span>{log.message}</span>
+                <span className="break-words min-w-0">{log.message}</span>
               </div>
             ))}
             <div ref={logsEndRef} />

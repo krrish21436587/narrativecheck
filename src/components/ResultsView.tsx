@@ -173,62 +173,62 @@ export function ResultsView({ result }: ResultsViewProps) {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
       {/* Main Result */}
       <div className={cn(
-        'card-elevated p-6 sm:p-8',
+        'card-elevated p-4 sm:p-6 md:p-8',
         isConsistent ? 'border-success/30' : 'border-destructive/30'
       )}>
-        <div className="flex flex-col sm:flex-row items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
           <div className={cn(
-            'w-16 h-16 rounded-full flex items-center justify-center shrink-0',
+            'w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shrink-0',
             isConsistent ? 'bg-success/10' : 'bg-destructive/10'
           )}>
             {isConsistent ? (
-              <CheckCircle2 className="w-8 h-8 text-success" />
+              <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8 text-success" />
             ) : (
-              <XCircle className="w-8 h-8 text-destructive" />
+              <XCircle className="w-7 h-7 sm:w-8 sm:h-8 text-destructive" />
             )}
           </div>
           
-          <div className="flex-1 text-center sm:text-left">
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mb-2">
-              <h2 className="text-2xl font-bold text-foreground">
+          <div className="flex-1 text-center sm:text-left w-full">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 mb-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">
                 {isConsistent ? 'Consistent' : 'Inconsistent'}
               </h2>
               <span className={cn(
-                'badge text-sm',
+                'badge text-xs sm:text-sm',
                 isConsistent ? 'badge-consistent' : 'badge-inconsistent'
               )}>
                 Label: {result.consistencyLabel}
               </span>
             </div>
             
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-muted-foreground mb-4">
-              <span>Story ID: <strong className="text-foreground">{result.storyId}</strong></span>
-              <span>Confidence: {(result.overallConfidence * 100).toFixed(1)}%</span>
-              <span>Time: {(result.processingTime / 1000).toFixed(1)}s</span>
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-4">
+              <span>Story: <strong className="text-foreground">{result.storyId}</strong></span>
+              <span>{(result.overallConfidence * 100).toFixed(1)}%</span>
+              <span>{(result.processingTime / 1000).toFixed(1)}s</span>
               <span className="badge badge-track">Track {result.track}</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Rationale</h3>
-          <p className="text-foreground">{result.rationale}</p>
+        <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <h3 className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">Rationale</h3>
+          <p className="text-sm sm:text-base text-foreground">{result.rationale}</p>
         </div>
 
-        <div className="mt-4 p-4 bg-muted/30 rounded-lg">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Detailed Explanation</h3>
-          <p className="text-sm text-muted-foreground">{result.explanation}</p>
+        <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-muted/30 rounded-lg">
+          <h3 className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">Detailed Explanation</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{result.explanation}</p>
         </div>
 
-        <div className="flex flex-wrap gap-2 mt-6">
-          <Button onClick={exportCSV} variant="outline" size="sm">
+        <div className="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-6">
+          <Button onClick={exportCSV} variant="outline" size="sm" className="w-full sm:w-auto">
             <Download className="w-4 h-4 mr-2" />
             Export CSV
           </Button>
-          <Button onClick={copyResults} variant="ghost" size="sm">
+          <Button onClick={copyResults} variant="ghost" size="sm" className="w-full sm:w-auto">
             <Copy className="w-4 h-4 mr-2" />
             Copy
           </Button>
@@ -236,15 +236,15 @@ export function ResultsView({ result }: ResultsViewProps) {
       </div>
 
       {/* Evidence Dossier */}
-      <div className="card-elevated p-6">
-        <h3 className="section-header">
+      <div className="card-elevated p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1">
           Evidence Dossier
-          <span className="text-muted-foreground text-sm font-normal ml-2">
-            ({result.claims.length} claims analyzed)
+          <span className="text-muted-foreground text-xs sm:text-sm font-normal ml-2">
+            ({result.claims.length} claims)
           </span>
         </h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Each backstory claim is linked to verbatim excerpts from the primary text, with analysis of constraint or refutation.
+        <p className="text-xs sm:text-sm text-muted-foreground mb-4">
+          Each backstory claim is linked to verbatim excerpts from the primary text.
         </p>
         <div className="space-y-3">
           {result.claims.map((claim) => (
@@ -254,12 +254,12 @@ export function ResultsView({ result }: ResultsViewProps) {
       </div>
 
       {/* Constraint Analysis */}
-      <div className="card-elevated p-6">
-        <h3 className="section-header">Constraint Analysis</h3>
-        <p className="text-sm text-muted-foreground mb-4">
+      <div className="card-elevated p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1">Constraint Analysis</h3>
+        <p className="text-xs sm:text-sm text-muted-foreground mb-4">
           Evaluation of temporal, causal, character, and factual constraints.
         </p>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {result.constraintAnalysis.map((constraint) => (
             <ConstraintCard key={constraint.id} constraint={constraint} />
           ))}

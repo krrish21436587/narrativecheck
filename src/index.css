@@ -159,7 +159,7 @@
   }
 
   .upload-zone {
-    @apply border-2 border-dashed border-border rounded-xl p-8 text-center transition-all duration-200 cursor-pointer hover:border-primary hover:bg-primary/5;
+    @apply border-2 border-dashed border-border rounded-xl p-4 sm:p-8 text-center transition-all duration-200 cursor-pointer hover:border-primary hover:bg-primary/5;
   }
 
   .upload-zone.active {
